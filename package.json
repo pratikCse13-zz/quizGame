@@ -1,0 +1,37 @@
+{
+  "name": "ember",
+  "version": "1.0.0",
+  "description": "a real time quiz game to be aired alongside a TV show",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf compiled",
+    "clean-win": "del compiled",
+    "build-prod": "npm run clean && mkdir compiled && babel server -s -d compiled",
+    "build-prod-win": "npm run clean-win && mkdir compiled && babel server -s -d compiled",
+    "start-prod": "npm run build-prod && node bin/production",
+    "start-prod-win": "npm run build-prod-win && node bin/production"
+  },
+  "author": "pratik",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mongoose": "^5.0.5",
+    "mongoose-paginate": "^5.0.3",
+    "redis": "^2.8.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "require-directory": "^2.1.1",
+    "socket.io": "^2.0.4",
+    "socket.io-redis": "^5.2.0",
+    "sticky-session": "^1.1.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1"
+  }
+}
