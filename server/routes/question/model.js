@@ -10,8 +10,7 @@ var paginate = require('mongoose-paginate')
 var QuestionSchema = new mongoose.Schema({
 	question: String,
 	options: [String],
-	answer: String,
-	difficulty: Number,
+	answer: Number,
 	exhausted: {
 		type: Boolean,
 		default: false
