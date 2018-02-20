@@ -9,8 +9,10 @@ var passport = require('passport')
 var User = require('./User')
 
 router.get('/allUsers', User.getAll)
-router.post('/login', passport.authenticate('facebook', { failureRedirect: '/login' }),
+router.post('/login', passport.authenticate('facebook-token', { session: false }),
     function(req, res) {
+        console.log('req.user')
+        console.log(req.user)
         // Successful authentication, redirect home. 
         return res.send({a: 'yay'})
     }
