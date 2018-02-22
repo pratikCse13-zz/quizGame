@@ -6,6 +6,7 @@ var app = express()
 var server = require('http').createServer(app)
 var sticky = require('sticky-session')
 var passport = require('passport')
+var scheduler = require('node-schedule')
 
 /**
  * import package modules
@@ -13,6 +14,7 @@ var passport = require('passport')
 var setup = require('./setup')
 var routes = require('./routes')
 var sockets = require('./sockets')
+var loader = require('./loader')
 
 require('./auth/facebook')(passport)
 require('./auth/kakao')(passport)
@@ -43,7 +45,14 @@ setup.stickySessions(server)
 setup.mongo()
 
 //setup socket
-sockets(server)
+var socketManager = sockets(server)
+
+/**
+ * schedule game loader
+ */
+scheduler.scheduleJob({hour: 20, minute: 55}, async ()=>{
+    var loaderResults = await loader(socketManager)
+})
 
 
   
