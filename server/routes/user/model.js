@@ -11,13 +11,19 @@ var UserSchema = new mongoose.Schema({
 	name: String,
 	age: Number,
 	gender: String,
-	facebookProvider: {
-		type: {
-			id: String,
-			token: String
-		},
-		select: false
-  	}
+	facebook: {
+        id: String,
+        token: String,
+        name: String,
+        email: String
+	},
+	totalCash: {
+		amount: Number,
+		currency: {
+			type: String,
+			default: '$'
+		}
+	}
 })
 
 UserSchema.statics.upsertFbUser = function(accessToken, refreshToken, profile, cb) {

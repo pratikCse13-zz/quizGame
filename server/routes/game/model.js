@@ -17,10 +17,18 @@ var GameSchema = new mongoose.Schema({
 		questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'question'},
 		question: String,
 		options: [String],
+		prizeMoney: Number,
 		answer: String,
-		difficulty: Number,
 		_id: false
-	}]
+	}],
+	nextQuestion: {
+		type: Number,
+		default: 0
+	},
+	aired: {
+		type: Boolean, 
+		default: false
+	}
 })
 
 GameSchema.plugin(paginate)

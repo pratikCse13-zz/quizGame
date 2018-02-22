@@ -11,6 +11,13 @@ var QuestionSchema = new mongoose.Schema({
 	question: String,
 	options: [String],
 	answer: Number,
+	prizeMoney: {
+		amount: Number,
+		currency: {
+			type: String,
+			default: '$'
+		}
+	},
 	exhausted: {
 		type: Boolean,
 		default: false
