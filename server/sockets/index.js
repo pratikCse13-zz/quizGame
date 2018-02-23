@@ -10,7 +10,7 @@ const redisAdapter = require('socket.io-redis')
 var config = require('../config')
 var redis = require('../setup').redis
 var SocketClient = require('./SocketClient')
-var SocketClient = require('./SocketManager')
+var SocketManager = require('./SocketManager')
 
 module.exports = (server)=>{
 	//setup sockets

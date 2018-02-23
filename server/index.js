@@ -14,7 +14,7 @@ var scheduler = require('node-schedule')
 var setup = require('./setup')
 var routes = require('./routes')
 var sockets = require('./sockets')
-var loader = require('./loader')
+var loader = require('./GameLoader')
 
 require('./auth/facebook')(passport)
 require('./auth/kakao')(passport)

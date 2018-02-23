@@ -54,7 +54,7 @@ class SocketManager {
 	 * function to emit the 
 	 * next question in the live game
 	 */
-	async emitNextQuestion(redis, io){
+	async emitNextQuestion(redis){
 		//get the next question from redis
 		try {
 			var [questions, nextQuestionIndex] = await Promise.all([
@@ -121,7 +121,7 @@ class SocketManager {
             return Promise.reject(err)
         }
         //emit the answer to all the sockets
-        io.emit(this.events.revealAnswer, currentAnswer)
+        this.io.emit(this.events.revealAnswer, currentAnswer)
     }
 
     /**
