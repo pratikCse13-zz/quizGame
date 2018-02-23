@@ -14,7 +14,6 @@ var config = require('./config')
 var UserModel = require('./routes/user/model')
 var redis = require('./setup/redis')
 var Game = require('./routes/game/Game')
-var GameManager = require('./gameManager')
 
 module.exports = (SocketManager, questionIndex)=>{
     //emit next question in time intervals
