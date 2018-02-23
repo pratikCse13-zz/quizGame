@@ -7,7 +7,7 @@ var Promise = require('bluebird')
  * import package modules
  */
 var UserModel = require('./model')
-var Helper = require('../../Helper')
+var Helper = require('../../helper')
 
 class User {
 	constructor(){}

@@ -7,7 +7,7 @@ var Promise = require('bluebird')
  * import package modules
  */
 var GameModel = require('./model')
-var Helper = require('../../Helper')
+var Helper = require('../../helper')
 
 class Game {
 	constructor(){}
