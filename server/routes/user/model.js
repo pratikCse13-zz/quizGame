@@ -17,13 +17,25 @@ var UserSchema = new mongoose.Schema({
         name: String,
         email: String
 	},
-	totalCash: {
+	totalPrizeMoney: {
 		amount: Number,
 		currency: {
 			type: String,
 			default: '$'
 		}
-	}
+	},
+	performance: [{
+		timestamp: Date,
+		prizeMoney: {
+			amount: Number,
+			currency: {
+				type: String,
+				default: '$'
+			}
+		},
+		correctCount: Number,
+		incorrectCount: Number
+	}]
 })
 
 UserSchema.statics.upsertFbUser = function(accessToken, refreshToken, profile, cb) {

@@ -3,6 +3,9 @@
  */
 const socketio = require('socket.io')
 const redisAdapter = require('socket.io-redis')
+const sharedSession = require('express-socket.io-session')
+const passportSocketIo = require('passport.socketio')
+var cookieParser = require('cookie-parser')
 
 /**
  * import package modules
@@ -12,15 +15,24 @@ var redis = require('../setup').redis
 var SocketClient = require('./SocketClient')
 var SocketManager = require('./SocketManager')
 
-module.exports = (server)=>{
+module.exports = (server, passport, sessionStore)=>{
 	//setup sockets
 	const io = socketio(server)
 	io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port}))
+
+	io.use(passportSocketIo.authorize({
+		key: 'connect.sid',
+		secret: config.session.sessionSecretKey,
+		store: sessionStore,
+		passport: passport,
+		cookieParser: cookieParser
+	}))
 
 	var socketManager = new SocketManager(io)
 	
 	redis.on('connect', () => {
 		socketManager.io.on('connection', (socket)=>{
+			console.log('player trying to connect')
 			//add player to the redis hash
 			SocketClient.addPlayerToRedis(redis, socket)
 
@@ -31,6 +43,7 @@ module.exports = (server)=>{
 			 * event to get real time player count
 			 */
 			socketClient.socket.on('getRealTimePlayerCount', ()=>{
+				console.log('got event')
 				socketClient.getRealTimePlayerCount(io)
 			})
 
@@ -55,6 +68,15 @@ module.exports = (server)=>{
 				socketClient.getNextGame(redis)
 			})
 		})	
+
+		// setInterval(()=>{
+		// 	console.log('heere')
+		// 	socketManager.io.of('/').adapter.clients((clients)=>{
+		// 		console.log('clients')
+		// 		console.log(clients)
+		// 	})
+		// 	socketManager.io.emit('hithere', {a: 2})
+		// }, 1000)
 	})
 	return socketManager
 }

@@ -9,5 +9,9 @@ var passport = require('passport')
 var User = require('./User')
 
 router.get('/allUsers', User.getAll)
+router.get('/leaderBoard/lastWeek', User.leaderBoardLastWeek)
+router.get('/leaderBoard/lastMonth', User.leaderBoardLastMonth)
+router.get('/leaderBoard', User.leaderBoard)
+router.get('/cashOut', User.cashOut)
 
 module.exports = router

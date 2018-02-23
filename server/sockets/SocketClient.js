@@ -34,6 +34,7 @@ class SocketClient {
 	 * function to add a new player to the set of player socketIds
 	 */
 	static async addPlayerToRedis(redis, socket){
+		console.log('adding player to redis')
 		try {
 			var [addPlayerResult, User] = await Promise.all([
 				redis.saddAsync(config.redis.keys.livePlayers, socket._id),

@@ -26,8 +26,7 @@ class SocketManager {
 			sendNextGame: 'nextGame',
 			noNextGame: 'noNextGame',
             errorNextGame: 'error-nextGame',
-			revealAnswer: 'revealAnswer',
-			nextQuestion: 'nextQuestion'
+            revealAnswer: 'revealAnswer'
 		}
     }
 
