@@ -21,8 +21,6 @@ module.exports = (SocketManager, questionIndex)=>{
     SocketManager.emitNextQuestion(redis).call(SocketManager)
     //reveal answer in time intervals
     if(questionIndex > 0){
-        setTimeout(function(){
-            SocketManager.revealAnswer(redis).call(SocketManager)
-        }, config.timer.attemptTimeInMin)
+        setTimeout(()=>{SocketManager.revealAnswer(redis).call(SocketManager)}, config.timer.attemptTimeInMin)
     }
 }
