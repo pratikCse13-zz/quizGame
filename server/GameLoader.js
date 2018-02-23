@@ -14,7 +14,7 @@ var config = require('./config')
 var UserModel = require('./routes/user/model')
 var redis = require('./setup/redis')
 var Game = require('./routes/game/Game')
-var GameManager = require('./gameManager')
+var GameManager = require('./GameManager')
 
 module.exports = async (socketManager)=>{
     //create redis stream
