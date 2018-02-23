@@ -17,15 +17,15 @@ class SocketManager {
         this.events = {
             winners: 'winners',
 			sendRealTimePlayerCount: 'realTimePlayerCount',
-			errorRealTimePlayerCount: 'error-realTimePlayerCount',
+			errorRealTimePlayerCount: 'errorRealTimePlayerCount',
 			sendNextQuestion: 'nextQuestion',
 			errorNextQuestion: 'error-nextQuestion',
 			sendLiveGame: 'liveGame',
 			noLiveGame: 'noLiveGame',
-			errorLiveGame: 'error-liveGame',
+			errorLiveGame: 'errorLiveGame',
 			sendNextGame: 'nextGame',
 			noNextGame: 'noNextGame',
-            errorNextGame: 'error-nextGame',
+            errorNextGame: 'errorNextGame',
 			revealAnswer: 'revealAnswer',
 			nextQuestion: 'nextQuestion'
 		}
