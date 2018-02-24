@@ -1,12 +1,12 @@
 /**
  * import npm modules
  */
-var router = require('express').Router()
+const router = require('express').Router()
 
 /**
  * import package modules
  */
-var Question = require('./Question')
+const Question = require('./Question')
 
 router.get('/allQuestions', Question.getAll)
 

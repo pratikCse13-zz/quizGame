@@ -1,21 +1,20 @@
 /**
  * import npm packages
  */
-var Promise = require('bluebird')
-var Mongoose = require('mongoose')
-var scheduler = require('node-schedule')
-var redisStream = require('redis-stream')
+const Promise = require('bluebird')
+const Mongoose = require('mongoose')
+const scheduler = require('node-schedule')
+const redisStream = require('redis-stream')
 
 /**
  * import package modules
  */
-var Helpers = require('./helper')
-var config = require('./config')
-var UserModel = require('./routes/user/model')
-var redis = require('./setup/redis')
-var Game = require('./routes/game/Game')
+const Helpers = require('./helper')
+const config = require('./config')
+const UserModel = require('./routes/user/model')
+const Game = require('./routes/game/Game')
 
-module.exports = (SocketManager, questionIndex)=>{
+module.exports = (SocketManager, questionIndex, redis)=>{
     //emit next question in time intervals
     SocketManager.emitNextQuestion(redis).call(SocketManager)
     //reveal answer in time intervals

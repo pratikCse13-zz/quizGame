@@ -1,15 +1,15 @@
 /**
  * import npm packages
  */
-var Promise = require('bluebird')
-var Mongoose = require('mongoose')
+const Promise = require('bluebird')
+const Mongoose = require('mongoose')
 
 /**
  * import package modules
  */
-var Helpers = require('../helper')
-var config = require('../config')
-var UserModel = require('../routes/user/model')
+const Helpers = require('../helper')
+const config = require('../config')
+const UserModel = require('../routes/user/model')
 
 class SocketClient {
 	constructor(socket){
@@ -38,7 +38,7 @@ class SocketClient {
 		try {
 			var [addPlayerResult, User] = await Promise.all([
 				redis.saddAsync(config.redis.keys.livePlayers, socket._id),
-				UserModel.findById(Mongoose.Types.ObjectId(socket.handshake.session.user._id))
+				UserModel.findById(Mongoose.Types.ObjectId(socket.request.user._id))
 			])
 		} catch(err) {
 			Helpers.notifyError(err, 'Error while fetching players hash from redis')

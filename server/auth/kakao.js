@@ -1,7 +1,7 @@
-var KakaoStrategy = require('passport-kakao').Strategy
+const KakaoStrategy = require('passport-kakao').Strategy
 
-var UserModel = require('../routes/user/model')
-var authConfig = require('../config').auth
+const UserModel = require('../routes/user/model')
+const authConfig = require('../config').auth
 
 module.exports = async function(passport){
     // used to serialize the user for the session

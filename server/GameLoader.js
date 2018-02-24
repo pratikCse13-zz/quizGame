@@ -1,22 +1,21 @@
 /**
  * import npm packages
  */
-var Promise = require('bluebird')
-var Mongoose = require('mongoose')
-var scheduler = require('node-schedule')
-var redisStream = require('redis-stream')
+const Promise = require('bluebird')
+const Mongoose = require('mongoose')
+const scheduler = require('node-schedule')
+const redisStream = require('redis-stream')
 
 /**
  * import package modules
  */
-var Helpers = require('./helper')
-var config = require('./config')
-var UserModel = require('./routes/user/model')
-var redis = require('./setup/redis')
-var Game = require('./routes/game/Game')
-var GameManager = require('./GameManager')
+const Helpers = require('./helper')
+const config = require('./config')
+const UserModel = require('./routes/user/model')
+const Game = require('./routes/game/Game')
+const GameManager = require('./GameManager')
 
-module.exports = async (socketManager)=>{
+module.exports = async (socketManager, redis)=>{
     //create redis stream
     var redisClient = new redisStream()
     var redisPipeline = redisClient.stream()
@@ -82,7 +81,7 @@ module.exports = async (socketManager)=>{
                 //send command to stream but parse it before
                 redisPipeline.redis.write(redisStream.parse(command))
                 //add the client name to the winners list
-                var command = ['hmset', config.redis.keys.winnersNames, client.handshake.session.user.name]
+                var command = ['hmset', config.redis.keys.winnersNames, client.request.user.name]
                 //send command to stream but parse it before
                 redisPipeline.redis.write(redisStream.parse(command))
             })
@@ -93,7 +92,7 @@ module.exports = async (socketManager)=>{
     var i = 0
     do{
         setTimeout(()=>{
-            GameManager(socketManager, numberOfQuestions)
+            GameManager(socketManager, numberOfQuestions, redis)
         }, i*config.timer.nextQuestionTimeInMin*3600)
         numberOfQuestions--
     } while(numberOfQuestions>-1)

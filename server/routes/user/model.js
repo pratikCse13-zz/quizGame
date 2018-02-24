@@ -1,13 +1,13 @@
 /** 
  * import npm modules
 */
-var mongoose = require('mongoose')
-var paginate = require('mongoose-paginate')
+const mongoose = require('mongoose')
+const paginate = require('mongoose-paginate')
 
 /**
  * Schema definition of User model
  */
-var UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
 	name: String,
 	age: Number,
 	gender: String,
@@ -35,7 +35,9 @@ var UserSchema = new mongoose.Schema({
 		},
 		correctCount: Number,
 		incorrectCount: Number
-	}]
+	}],
+	uniqueInviteCode: String,
+	extraLives: Number
 })
 
 UserSchema.statics.upsertFbUser = function(accessToken, refreshToken, profile, cb) {

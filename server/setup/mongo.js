@@ -1,12 +1,12 @@
 /** 
  * import npm modules
 */
-var mongoose = require('mongoose')
+const mongoose = require('mongoose')
 
 /**
  * import package modules
  */
-var config = require('../config')
+const config = require('../config')
 
 module.exports = ()=>{
 	mongoose.connect(config.mongo.url)

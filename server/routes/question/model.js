@@ -1,13 +1,13 @@
 /** 
  * import npm modules
 */
-var mongoose = require('mongoose')
-var paginate = require('mongoose-paginate')
+const mongoose = require('mongoose')
+const paginate = require('mongoose-paginate')
 
 /**
  * Schema definition of Question model
  */
-var QuestionSchema = new mongoose.Schema({
+const QuestionSchema = new mongoose.Schema({
 	question: String,
 	options: [String],
 	answer: Number,

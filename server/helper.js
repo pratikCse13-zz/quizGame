@@ -8,6 +8,10 @@ class Helper {
 		console.log(message)
 		console.log(err)
 	}
+
+	static generateUniqueInviteCode(name){
+		
+	}
 }
 
 module.exports = Helper

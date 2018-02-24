@@ -1,15 +1,15 @@
 /** 
  * import npm modules
 */
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var ObjectId = Schema.ObjectId
-var paginate = require('mongoose-paginate')
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+const ObjectId = Schema.ObjectId
+const paginate = require('mongoose-paginate')
 
 /**
  * Schema definition of Hame model
  */
-var GameSchema = new mongoose.Schema({
+const GameSchema = new mongoose.Schema({
 	name: String,
 	prizeMoney: Number,
 	airTime: Date,

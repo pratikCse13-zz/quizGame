@@ -5,17 +5,16 @@ const socketio = require('socket.io')
 const redisAdapter = require('socket.io-redis')
 const sharedSession = require('express-socket.io-session')
 const passportSocketIo = require('passport.socketio')
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 
 /**
  * import package modules
  */
-var config = require('../config')
-var redis = require('../setup').redis
-var SocketClient = require('./SocketClient')
-var SocketManager = require('./SocketManager')
+const config = require('../config')
+const SocketClient = require('./SocketClient')
+const SocketManager = require('./SocketManager')
 
-module.exports = (server, passport, sessionStore)=>{
+module.exports = (server, passport, sessionStore, redis)=>{
 	//setup sockets
 	const io = socketio(server)
 	io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port}))
@@ -67,16 +66,40 @@ module.exports = (server, passport, sessionStore)=>{
 			socketClient.socket.on('getNextGame', ()=>{
 				socketClient.getNextGame(redis)
 			})
+
+			/**
+			 * event to post a comment
+			 */
+			socketClient.socket.on('postComment', (comment)=>{
+				socketManager.io.of('/').adapter.clients((err, clients)=>{
+					if(err) {
+						socketClient.socket.emit('errorPostingComment', {
+							message: 'Something went wrong. Please try again.'
+						})
+					} else {
+						client.emit('newComment', {
+							name: socketClient.socket.request.user.name,
+							comment: comment
+						})
+					}
+				})
+			})
+
+			socketClient.socket.on('disconnect', ()=>{
+				console.log(`A client disconnected`)
+			})
 		})	
 
-		// setInterval(()=>{
-		// 	console.log('heere')
-		// 	socketManager.io.of('/').adapter.clients((clients)=>{
-		// 		console.log('clients')
-		// 		console.log(clients)
-		// 	})
-		// 	socketManager.io.emit('hithere', {a: 2})
-		// }, 1000)
+		setInterval(()=>{
+			console.log(`Ping process running.`)
+			socketManager.io.of('/').adapter.clients((err, clients)=>{
+				clients.forEach(()=>{
+					console.log('pinging a client')
+					client.emit('pinge', {message: 'HI from server'})
+				})
+			})
+			io.emit('pinge', {message: 'non adapter hi'})
+		}, 5000)
 	})
 	return socketManager
 }

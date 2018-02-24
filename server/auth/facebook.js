@@ -1,16 +1,18 @@
-var FacebookStrategy = require('passport-facebook').Strategy
+const FacebookStrategy = require('passport-facebook').Strategy
 
-var UserModel = require('../routes/user/model')
-var authConfig = require('../config').auth
+const UserModel = require('../routes/user/model')
+const authConfig = require('../config').auth
 
 module.exports = async function(passport){
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        done(null, user.id)
+        console.log('serializing user')
+        done(null, user._id)
     })
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
+        console.log('deserializing user')
         User.findById(id, function(err, user) {
             done(err, user)
         })
@@ -26,6 +28,7 @@ module.exports = async function(passport){
         process.nextTick(async ()=>{
             // check if the user is already logged in
             if(!req.user) {
+                console.log('user not logged in')
                 try {
                     var user = await UserModel.findOne({ 'facebook.id' : profile.id })
                 } catch(err) {
@@ -33,6 +36,7 @@ module.exports = async function(passport){
                     return done(err)
                 }
                 if(user) {
+                    console.log('new token for already registered user')
                     // if there is a user id already but no token (user was linked at one point and then removed)
                     if(!user.facebook.token) {
                         user.facebook.token = token
@@ -47,6 +51,7 @@ module.exports = async function(passport){
                     }
                     return done(null, user)
                 } else {
+                    console.log('registering user')
                     // if there is no user, create them
                     var newUser = new UserModel()
                     newUser.facebook.id = profile.id
@@ -62,6 +67,7 @@ module.exports = async function(passport){
                     return done(null, newUser)
                 }
             } else {
+                console.log('linking facebook account')
                 // user already exists and is logged in, we have to link accounts
                 var user = req.user // pull the user out of the session
                 user.facebook.id = profile.id

@@ -1,13 +1,13 @@
 /**
  * import npm modules
  */
-var Promise = require('bluebird')
+const Promise = require('bluebird')
 
 /**
  * import package modules
  */
-var GameModel = require('./model')
-var Helper = require('../../helper')
+const GameModel = require('./model')
+const Helper = require('../../helper')
 
 class Game {
 	constructor(){}
@@ -52,8 +52,6 @@ class Game {
 	static async getNextGameApi(req, res){
 		try {
 			var game = await this.getNextGame()
-			console.log('game in api 1s')
-			console.log(game)
 		} catch(err) {
 			Helper.notifyError(err, 'Error while fetching next game from next game method in getNextGame Api.')
 			return res.status(510).send({
@@ -61,8 +59,6 @@ class Game {
 				err: err.message
 			})
 		}
-		console.log('game in api')
-		console.log(game)
 		return res.status(200).send({
 			message: 'Operation Successful.',
 			data: game
@@ -74,7 +70,6 @@ class Game {
 	 * chronologically
 	 */
 	static async getNextGame(){
-		console.log('get next game caled')
 		try {
 			var game = await GameModel.paginate({}, {
 				sort: {
@@ -84,13 +79,10 @@ class Game {
 				lean: true,
 				select: 'airTime prizeMoney'
 			})
-			console.log('game in helper')
-			console.log(game)
 		} catch(err) {
 			Helper.notifyError(err, 'Error occurred while fetching game from the db in getNextGame method of Game class.')
 			return Promise.reject(err)
 		}
-		console.log('pos helper')
 		//send succesful response
 		return Promise.resolve(game.docs[0])
 	}

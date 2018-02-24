@@ -1,13 +1,13 @@
 /**
  * import npm modules
  */
-var Promise = require('bluebird')
+const Promise = require('bluebird')
 
 /**
  * import package modules
  */
-var QuestionModel = require('./model')
-var Helper = require('../../helper')
+const QuestionModel = require('./model')
+const Helper = require('../../helper')
 
 class Question {
 	constructor(){}

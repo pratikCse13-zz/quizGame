@@ -8,8 +8,8 @@ Mongoose.set('debug', true)
 /**
  * import package modules
  */
-var UserModel = require('./model')
-var Helper = require('../../helper')
+const UserModel = require('./model')
+const Helper = require('../../helper')
 
 class User {
 	constructor(){}
@@ -147,10 +147,39 @@ class User {
 	}
 
 	/**
+	 * this function fetches all the leaderBoards 
+	 * for all the time
+	 */
+	async leaderBoardAllTime(req, res){
+		try {
+			var leaderBoard = await UserModel.aggregate([
+				{$unwind: '$performance'},
+				{$group: {
+						_id: '$_id',
+						amount: {$sum: '$performance.prizeMoney.amount'},
+						correctCount: {$sum: '$performance.correctCount'},
+						incorrectCount: {$sum: '$performance.incorrectCount'}
+				}},
+				{$sort: {amount: -1}}
+			])
+		} catch(err) {
+			Helper.notifyError(err, `Error in fetching leaderBoard in user controller`)
+			return res.status(510).send({
+				message: `Something went wrong. Please try again`,
+				err: err.message
+			})
+		}
+		return res.status(200).send({
+			leaderBoard: leaderBoard,
+			message: 'Operation successful.'
+		})
+	}
+
+	/**
 	 * this function cashes out the users prizemoney
 	 */
 	async cashOut(req, res){
-		var userId = Mongoose.Types.Objectd(req.user._id)
+		var userId = Mongoose.Types.ObjectId(req.user._id)
 		try {
 			var user = await UserModel.update({_id: userId}, {$set: {'totalPrizeMoney.amount': 0}}, {multi: false})
 		} catch(err) {
@@ -162,6 +191,35 @@ class User {
 		}
 		return res.status(200).send({
 			message: 'Operation Successful'
+		})
+	}
+
+	/**
+	 * this function cashes out the users prizemoney
+	 */
+	async spendLife(req, res){
+		var userId = Mongoose.Types.ObjectId(req.user._id)
+		try {
+			var user = await UserModel.update({_id: userId}, {$inc: {exraLives: -1}}, {multi: false})
+		} catch(err) {
+			Helper.notifyError(err, `Error in spending life for user`)
+			return res.status(510).send({
+				err: err.message,
+				message: 'Something bad happened. Please try again'
+			})
+		}
+		return res.status(200).send({
+			message: 'Operation Successful'
+		})
+	}
+
+	/**
+	 * this function fetches the user object
+	 */
+	async fetchUser(){
+		return res.status(200).send({
+			message: 'Successful Operation',
+			user: req.user
 		})
 	}
 }

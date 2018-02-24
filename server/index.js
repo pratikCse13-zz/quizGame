@@ -1,51 +1,41 @@
 /** 
  * import npm modules
 */
-var express = require('express')
-var app = express()
-var server = require('http').createServer(app)
-var sticky = require('sticky-session')
-var passport = require('passport')
-var scheduler = require('node-schedule')
-var expressSession = require('express-session')
-var MongoStore = require('connect-mongo')(expressSession)
+const express = require('express')
+const app = express()
+const server = require('http').createServer(app)
+const sticky = require('sticky-session')
+const passport = require('passport')
+const scheduler = require('node-schedule')
+const expressSession = require('express-session')
+const MongoStore = require('connect-mongo')(expressSession)
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 
 /**
  * import package modules
  */
-var setup = require('./setup')
-var routes = require('./routes')
-var sockets = require('./sockets')
-var loader = require('./GameLoader')
-var config = require('./config')
+const setup = require('./setup')
+const routes = require('./routes')
+const sockets = require('./sockets')
+const loader = require('./GameLoader')
+const config = require('./config')
+const authMiddlewares = require('./middlewares').auth
 
-require('./auth/facebook')(passport)
-require('./auth/kakao')(passport)
+app.use(express.static('views'))
+app.set('view engine', 'pug')
+app.get('/', (req, res)=>{
+    res.render('index')
+})
 
-app.use(passport.initialize())
-app.use(passport.session())
-
-// send to facebook to do the authentication
-app.get('/auth/facebook', passport.authenticate('facebook', { scope : ['public_profile', 'email'] }));
-app.get('/auth/kakao', passport.authenticate('kakao', { scope : ['public_profile', 'email'] }));
-
-// handle the callback after facebook has authenticated the user
-app.get('/auth/facebook/callback',
-    passport.authenticate('facebook', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
-    })
-)
-
-//setup routes
-app.use(routes)
-
-
-//setup sticky sessions
-setup.stickySessions(server)
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(cookieParser())
 
 //setup mongo
 setup.mongo()
+//setup redis 
+var redisClient = setup.redis()
 
 var sessionStore = new MongoStore({
     url: config.mongo.url,
@@ -65,17 +55,39 @@ var session = expressSession({
     }
 })
 
-app.use(session);
+app.use(session)
+require('./auth/facebook')(passport)
+require('./auth/kakao')(passport)
+app.use(passport.initialize())
+app.use(passport.session())
+
+//setup routes
+app.use(routes)
+
+app.get('/auth/facebook', passport.authenticate('facebook', { scope : ['public_profile', 'email'] }), authMiddlewares.regenerateSession)
+app.get('/auth/kakao', passport.authenticate('kakao', { scope : ['public_profile', 'email'] }), authMiddlewares.regenerateSession)
+
+// handle the callback after facebook has authenticated the user
+app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', {
+        successRedirect : '/',
+        failureRedirect : '/'
+    })
+)
 
 //setup socket
-var socketManager = sockets(server, passport, sessionStore)
+var socketManager = sockets(server, passport, sessionStore, redisClient)
 
 /**
  * schedule game loader
  */
 scheduler.scheduleJob({hour: 20, minute: 55}, async ()=>{
-    var loaderResults = await loader(socketManager)
+    var loaderResults = await loader(socketManager, redisClient)
 })
+
+//setup sticky sessions
+setup.stickySessions(server)
+
 
 
   

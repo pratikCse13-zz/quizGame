@@ -1,10 +1,16 @@
 /**
  * import npm packages
  */
-var router = require('express').Router()
+const passport = require('passport')
+const router = require('express').Router()
+
+/**
+ * import package modules
+ */
+const authMiddlewares = require('../middlewares').auth
 
 router.use('/question', require('./question'))
-router.use('/game',     require('./game'))
-router.use('/user',     require('./user'))
+router.use('/game', require('./game'))
+router.use('/user', require('./user'))
 
 module.exports = router;
