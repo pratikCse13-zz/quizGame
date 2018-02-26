@@ -1,7 +1,7 @@
 /**
  * import npm packages
  */
-var Mongoose = require('Mongoose')
+var Mongoose = require('mongoose')
 
 
 class Helper {
