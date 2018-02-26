@@ -127,7 +127,9 @@ class Game {
 	 */
 	static async getNextGame(){
 		try {
-			var game = await GameModel.paginate({}, {
+			var game = await GameModel.paginate({
+				airTime: {$gte: new Date()}
+			}, {
 				sort: {
 					airTime: 1
 				}, 
