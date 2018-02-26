@@ -17,14 +17,10 @@ const GameSchema = new mongoose.Schema({
 		questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'question'},
 		question: String,
 		options: [String],
-		prizeMoney: Number,
+		prizeMoney: Object,
 		answer: String,
 		_id: false
 	}],
-	nextQuestion: {
-		type: Number,
-		default: 0
-	},
 	aired: {
 		type: Boolean, 
 		default: false

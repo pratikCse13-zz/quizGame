@@ -8,6 +8,7 @@ const paginate = require('mongoose-paginate')
  * Schema definition of Question model
  */
 const QuestionSchema = new mongoose.Schema({
+	_id: false,
 	question: String,
 	options: [String],
 	answer: Number,
