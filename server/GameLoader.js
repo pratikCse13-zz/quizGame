@@ -89,11 +89,11 @@ module.exports = async (socketManager, redis)=>{
     })
     redisPipeline.end()
     //start the game manager
-    var i = 0
-    do{
-        setTimeout(()=>{
-            GameManager(socketManager, numberOfQuestions, redis)
-        }, i*config.timer.nextQuestionTimeInMin*3600)
-        numberOfQuestions--
-    } while(numberOfQuestions>-1)
+    // var i = 0
+    // do{
+    //     setTimeout(()=>{
+    //         GameManager(socketManager, numberOfQuestions, redis)
+    //     }, i*config.timer.nextQuestionTimeInMin*3600)
+    //     numberOfQuestions--
+    // } while(numberOfQuestions>-1)
 }

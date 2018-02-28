@@ -81,9 +81,9 @@ var socketManager = sockets(server, passport, sessionStore, redisClient)
 /**
  * schedule game loader
  */
-scheduler.scheduleJob({hour: 20, minute: 55}, async ()=>{
-    var loaderResults = await loader(socketManager, redisClient)
-})
+// scheduler.scheduleJob({hour: 20, minute: 55}, async ()=>{
+//     var loaderResults = await loader(socketManager, redisClient)
+// })
 
 //setup sticky sessions
 setup.stickySessions(server)

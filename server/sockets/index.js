@@ -13,6 +13,8 @@ const cookieParser = require('cookie-parser')
 const config = require('../config')
 const SocketClient = require('./SocketClient')
 const SocketManager = require('./SocketManager')
+const loader = require('../GameLoader')
+
 
 module.exports = (server, passport, sessionStore, redis)=>{
 	//setup sockets
@@ -38,26 +40,35 @@ module.exports = (server, passport, sessionStore, redis)=>{
 			//create a new instance of socket class
 			var socketClient = new SocketClient(socket)
 
+			/************************************ */
+			//adin socket events
+			socketClient.socket.on('loadGame', (redis)=>{
+				loader(socketManager, redis)
+			})
+
+			socketClient.socket.on('broadcastNextQuestion', (redis)=>{
+				socketClient.adminEmitNextQuestion(socketManager.io, redis)
+			})
+
+			socketClient.socket.on('broadcastAnswer', (redis)=>{
+				socketClient.revealAnswer(socketManager.io, redis)
+			})
+
+			/************************************* */
+			//player socket events
 			/**
 			 * event to get real time player count
 			 */
 			socketClient.socket.on('getRealTimePlayerCount', ()=>{
 				console.log('got event')
-				socketClient.getRealTimePlayerCount(io)
+				socketClient.getRealTimePlayerCount(socketManager.io)
 			})
 
 			/**
-			 * event to get next question
+			 * event to get live question
 			 */
-			socketClient.socket.on('getNextQuestion', ()=>{
-				socketClient.getNextQuestion(redis)
-			})
-
-			/**
-			 * event to get live game
-			 */
-			socketClient.socket.on('getNextQuestion', ()=>{
-				socketClient.getLiveGame(redis)
+			socketClient.socket.on('getNextQuestion', (redis)=>{
+				socketClient.getLiveQuestion(redis)
 			})
 
 			/**
@@ -71,18 +82,7 @@ module.exports = (server, passport, sessionStore, redis)=>{
 			 * event to post a comment
 			 */
 			socketClient.socket.on('postComment', (comment)=>{
-				socketManager.io.of('/').adapter.clients((err, clients)=>{
-					if(err) {
-						socketClient.socket.emit('errorPostingComment', {
-							message: 'Something went wrong. Please try again.'
-						})
-					} else {
-						client.emit('newComment', {
-							name: socketClient.socket.request.user.name,
-							comment: comment
-						})
-					}
-				})
+				socketClient.postComment(socketManager.io)
 			})
 
 			socketClient.socket.on('disconnect', ()=>{

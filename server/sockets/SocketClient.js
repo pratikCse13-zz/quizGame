@@ -17,11 +17,20 @@ class SocketClient {
 		this.events = {
 			sendRealTimePlayerCount: 'realTimePlayerCount',
 			errorRealTimePlayerCount: 'error-realTimePlayerCount',
-			sendNextQuestion: 'nextQuestion',
+			//next question - admin
 			errorNextQuestion: 'error-nextQuestion',
+			nextQuestion: 'nextQuestion',
+			//live question - player
+			errorLiveQuestion: 'errorLiveQuestion',
+			sendLiveQuestion: 'liveQuestion',
+			//live game - player
 			sendLiveGame: 'liveGame',
 			noLiveGame: 'noLiveGame',
 			errorLiveGame: 'error-liveGame',
+			//reveal answer - admin
+			errorRevealAnswer: 'errorRevealAnswer',
+			revealAnswer: 'revealAnswer',
+
 			sendNextGame: 'nextGame',
 			noNextGame: 'noNextGame',
 			errorNextGame: 'error-nextGame',
@@ -117,6 +126,165 @@ class SocketClient {
 			//if the next game is not found
 			this.socket.emit(this.events.noUpcomingGame)
 		}
+	}
+
+	/**
+	 * function called by admin 
+	 * to emit next question
+	 */
+	async adminEmitNextQuestion(io, redis){
+		//get the next question from redis
+		try {
+			var [questions, nextQuestionIndex] = await Promise.all([
+                redis.getAsync(config.redis.keys.liveQuestions),
+                redis.getAsync(config.redis.keys.nextQuestionIndex)
+            ])
+		} catch(err) {
+			Helpers.notifyError(err, `Error while fetching live game in next question event for socket: ${this.socket.id}`)
+			this.io.emit(this.events.errorNextQuestion, {
+				message: 'Error in fetching the next question.',
+				err: err.message
+			})
+        }
+        if(!questions){
+			//if there is no live game
+			this.socket.emit(this.events.noLiveGame, {
+				message: 'Sorry. There is no game being aired right now. Please come back later.'
+			})
+		} else {	
+            //parse the stringifies form of questions array and nextQuestionIndex
+            questions = JSON.parse(questions)
+            nextQuestionIndex = parseInt(nextQuestionIndex)
+			//if the next question index is more than the number of questions then game over
+			if(questions.length == nextQuestionIndex){
+				this.socket.emit(this.events.gameOver, {
+					message: 'Thats all folks!!'
+				})
+			} else {
+				//get the next question 
+				var nextQuestion = questions[nextQuestionIndex]
+				//save the updates object
+				try {
+					var nextQuestionIndexUpdate = await Promise.all([
+                        redis.incrAsync(config.redis.keys.nextQuestionIndex),
+                        redis.setAsync(config.redis.keys.currentQuestion, nextQuestion.question),
+                        redis.hmsetAsync(config.redis.keys.currentPrize, nextQuestion.prizeMoney),
+                        redis.setAsync(config.redis.keys.currentAnswerIndex, nextQuestion.answer),
+                    ])
+				} catch(err) {
+					Helpers.notifyError(err, 'Error while incrementing the next question index in getNextQuestion  event')
+					return Promise.reject(err)
+				}
+				io.of('/').adapter.clients((err, clients)=>{
+					if(err){
+						this.socket.emit(this.events.errorNextQuestion, {
+							message: 'Error in fetching the next question.',
+							err: err.message
+						})
+					} else {
+						clients.forEach((client)=>{
+							client.emit(this.events.nextQuestion, {
+								question: nextQuestion.question,
+								options: nextQuestion.options
+							})
+						})
+					}	
+				})	
+				//and if the next question index is more than the number of question 
+				//then game is over
+			}
+
+		}
+	}
+
+	/**
+     * function that emits the event of 
+     * revealing the answer to the current question
+     */
+    async revealAnswer(redis, io){
+        //get the liveGame and its questions
+        try {
+            var currentAnswer = redis.getAsync(config.redis.keys.currentAnswer)
+        } catch(err) {
+			this.socket.emit(this.events.errorRevealAnswer, {
+				message: 'Error in revealing the answer.',
+				err: err.message
+			})
+        }
+        //emit the answer to all the sockets
+        io.of('/').adapter.clients((err, clients)=>{
+			if(err) {
+				this.socket.emit(this.events.errorRevealAnswer, {
+					message: 'Error in revealing the answer.',
+					err: err.message
+				})
+			} else {
+				clients.forEach((client)=>{
+					client.emit(this.events.revealAnswer, currentAnswer)
+				})
+			}
+		})
+    }
+
+	/**
+	 * function to emit the 
+	 * next question in the live game
+	 */
+	async getLiveQuestion(redis){
+		//get the next question from redis
+		try {
+			var [questions, nextQuestionIndex] = await Promise.all([
+                redis.getAsync(config.redis.keys.liveQuestions),
+                redis.getAsync(config.redis.keys.nextQuestionIndex)
+            ])
+		} catch(err) {
+			Helpers.notifyError(err, `Error while fetching live game in next question event for socket: ${this.socket.id}`)
+			this.socket.emit(this.events.errorLiveQuestion, {
+				message: 'Error in fetching the next question.',
+				err: err.message
+			})
+        }
+        if(!questions){
+			//if there is no live game
+			this.socket.emit(this.events.noLiveGame, {
+				message: 'Sorry. There is no game being aired right now. Please come back later.'
+			})
+		} else {	
+            //parse the stringifies form of questions array and nextQuestionIndex
+            questions = JSON.parse(questions)
+            nextQuestionIndex = parseInt(nextQuestionIndex)
+			//if the next question index is more than the number of questions then game over
+			if(questions.length == nextQuestionIndex){
+				this.socket.emit(this.events.gameOver, {
+					message: 'Thats all folks!!'
+				})
+			} else {
+				//get the next question 
+				var liveQuestion = questions[nextQuestionIndex-1]
+				this.socket.emit(this.events.liveQuestion, {
+                    question: liveQuestion.question,
+                    options: liveQuestion.options
+                })	
+				//and if the next question index is more than the number of question 
+				//then game is over
+			}
+
+		}
+	}
+	
+	async postComment(io){
+		io.of('/').adapter.clients((err, clients)=>{
+			if(err) {
+				socketClient.socket.emit('errorPostingComment', {
+					message: 'Something went wrong. Please try again.'
+				})
+			} else {
+				client.emit('newComment', {
+					name: socketClient.socket.request.user.name,
+					comment: comment
+				})
+			}
+		})
 	}
 
 	async submitAnswer(redis, answer){
